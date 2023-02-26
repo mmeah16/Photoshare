@@ -1,9 +1,11 @@
 CREATE DATABASE IF NOT EXISTS photoshare;
 USE photoshare;
+DROP TABLE IF EXISTS Comments CASCADE;
 DROP TABLE IF EXISTS Pictures CASCADE;
+DROP TABLE IF EXISTS Tags CASCADE; 
 DROP TABLE IF EXISTS Users CASCADE;
 DROP TABLE IF EXISTS Album CASCADE;
-DROP TABLE IF EXISTS Tags CASCADE; 
+
 
 
 CREATE TABLE Users (
@@ -11,10 +13,10 @@ CREATE TABLE Users (
   gender VARCHAR(6), 
   email varchar(255) UNIQUE,
   password varchar(255) NOT NULL,
-  dob DATE NOT NULL,
+  dob DATE,
   hometown VARCHAR(40),
-  fname VARCHAR(40) NOT NULL,
-  lname VARCHAR(40) NOT NULL,
+  fname VARCHAR(40),
+  lname VARCHAR(40),
   CONSTRAINT users_pk PRIMARY KEY (user_id)
 );
 
@@ -71,7 +73,7 @@ CREATE TABLE Tagged(
   tag_id INT, 
   PRIMARY KEY(picture_id, tag_id),
   FOREIGN KEY(picture_id) REFERENCES Pictures(picture_id), 
-  FOREIGN KEY(tags_id) REFERENCES Tags(tag_id)
+  FOREIGN KEY(tag_id) REFERENCES Tags(tag_id)
 );
 
 CREATE TABLE Friendship (
@@ -83,8 +85,8 @@ CREATE TABLE Friendship (
   FOREIGN KEY (UID2) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
-CREATE ASSERTION Comment-Constraint CHECK
-  (NOT EXISTS (SELECT * FROM Comments C, Pictures P WHERE C.picture_id = P.picture_id AND P.user_id = C.user_id));
+-- CREATE ASSERTION Comment-Constraint CHECK
+  -- (NOT EXISTS (SELECT * FROM Comments C, Pictures P WHERE C.picture_id = P.picture_id AND P.user_id = C.user_id));
 
 INSERT INTO Users (email, password) VALUES ('test@bu.edu', 'test');
 INSERT INTO Users (email, password) VALUES ('test1@bu.edu', 'test');

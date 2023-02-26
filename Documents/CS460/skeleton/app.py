@@ -13,6 +13,7 @@ import flask
 from flask import Flask, Response, request, render_template, redirect, url_for
 from flaskext.mysql import MySQL
 import flask_login
+from datetime import date, time 
 
 #for image uploading
 import os, base64
@@ -124,19 +125,19 @@ def register_user():
 		email=request.form.get('email')
 		password=request.form.get('password')
 		# INSERT OTHER USER CREDENTIALS 
-		user_id = request.form.get('username')
+		# user_id = request.form.get('username')
 		gender = request.form.get('gender')
-		dob = request.form.get('birthday')
-		hometown = request.get('hometown')
-		fname = request.get('first name')
-		lname = request.get('last name')
+		#dob = request.form.get('date of birth')
+		hometown = request.form.get('hometown')
+		fname = request.form.get('first name')
+		lname = request.form.get('last name')
 	except:
-		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
+		print("couldn't find all tokens, not all tokens in") #this prints to shell, end users will not see this (all print statements go to shell)
 		return flask.redirect(flask.url_for('register'))
 	cursor = conn.cursor()
 	test =  isEmailUnique(email)
 	if test:
-		print(cursor.execute("INSERT INTO Users (email, password) VALUES ('{0}', '{1}')".format(email, password)))
+		print(cursor.execute("INSERT INTO Users (email, password, gender, hometown, fname, lname) VALUES ('{0}', '{1}','{2}','{3}','{4}','{5}')".format(email, password, gender, hometown, fname, lname)))
 		conn.commit()
 		#log user in
 		user = User()
@@ -144,7 +145,7 @@ def register_user():
 		flask_login.login_user(user)
 		return render_template('hello.html', name=email, message='Account Created!')
 	else:
-		print("couldn't find all tokens")
+		print("couldn't find all tokens, duplicate emails")
 		return flask.redirect(flask.url_for('register'))
 
 def getUsersPhotos(uid):
@@ -195,6 +196,20 @@ def upload_file():
 		return render_template('upload.html')
 #end photo uploading code
 
+@app.route('/create_album',methods=['GET','POST'])
+@flask_login.login_required
+def create_album():
+	if request.method == 'GET':
+		return render_template('albums.html', message='Create an Album')
+	elif request.method == 'POST':
+		album_name = request.form.get('album_name')
+		user_id = getUserIdFromEmail(flask_login.current_user.id)
+		date = time.strftime('%m/%d/%Y')
+		cursor = conn.cursor()
+		(cursor.execute("INSERT INTO Albums(album_name, user_id, date) VALUES ('{0}','{1}','{2}')".format(album_name, user_id, date)))
+		conn.commit()
+		return render_template('hello.html', message='Your album has been created!')
+	return render_template('create_album.html')
 
 #default page
 @app.route("/", methods=['GET'])
