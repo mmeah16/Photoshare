@@ -123,6 +123,13 @@ def register_user():
 	try:
 		email=request.form.get('email')
 		password=request.form.get('password')
+		# INSERT OTHER USER CREDENTIALS 
+		user_id = request.form.get('username')
+		gender = request.form.get('gender')
+		dob = request.form.get('birthday')
+		hometown = request.get('hometown')
+		fname = request.get('first name')
+		lname = request.get('last name')
 	except:
 		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
 		return flask.redirect(flask.url_for('register'))
@@ -160,7 +167,7 @@ def isEmailUnique(email):
 		return True
 #end login code
 
-@app.route('/profile')
+@app.route('/profile', methods = ['GET', 'POST'])
 @flask_login.login_required
 def protected():
 	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile")

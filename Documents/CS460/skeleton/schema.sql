@@ -37,7 +37,7 @@ CREATE TABLE Pictures
   PRIMARY KEY (picture_id), 
   FOREIGN KEY (user_id) REFERENCES Users(user_id),
   FOREIGN KEY (album_id) REFERENCES Albums(album_id) ON DELETE CASCADE,
-  INDEX upid_idx (user_id),
+  INDEX upid_idx (user_id)
 --  CONSTRAINT pictures_pk PRIMARY KEY (picture_id)
 );
 
@@ -45,19 +45,19 @@ CREATE TABLE Comments(
   comment_id INT NOT NULL AUTO_INCREMENT,
   text TEXT NOT NULL,
   date DATETIME DEFAULT CURRENT_TIMESTAMP,
-  user_id NOT NULL,
-  picture_id NOT NULL, 
+  user_id int4 NOT NULL,
+  picture_id int4 NOT NULL, 
   PRIMARY KEY (comment_id),
   FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
   FOREIGN KEY (picture_id) REFERENCES Pictures(picture_id) ON DELETE CASCADE 
 );
 
 CREATE TABLE Likes(
-  user_id INT NOT NULL;
-  picture_id INT NOT NULL;
+  user_id INT NOT NULL,
+  picture_id INT NOT NULL,
   PRIMARY KEY (picture_id, user_id),
   FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
-  FOREIGN KEY (picture_id) REFERNECES Pictures(picture_id) ON DELETE CASCADE 
+  FOREIGN KEY (picture_id) REFERENCES Pictures(picture_id) ON DELETE CASCADE 
 );
 
 CREATE TABLE Tags(
@@ -69,7 +69,7 @@ CREATE TABLE Tags(
 CREATE TABLE Tagged(
   picture_id INT,
   tag_id INT, 
-  PRIMARY KEY(picture_id, tag_id)
+  PRIMARY KEY(picture_id, tag_id),
   FOREIGN KEY(picture_id) REFERENCES Pictures(picture_id), 
   FOREIGN KEY(tags_id) REFERENCES Tags(tag_id)
 );
