@@ -194,27 +194,29 @@ def upload_file():
 #end photo uploading code
 
 #Friends part
+
 @app.route('/addfr', methods=['GET', 'POST'])
 @flask_login.login_required
 def add():
 	usid = getUserIdFromEmail(flask_login.current_user.id)
 	if request.method == 'GET':
-		return render_template('addf.html')
+		return render_template('addf.html', friends = getUsersFriends(usid))
 	email = flask.request.form['email']
 	cursor = conn.cursor()
+
 	#check if email is registered
 	if isEmailUnique(email):
-		return render_template('addf.html', notfound = 'True')
+		return render_template('addf.html', notfound = 'True', friends = getUsersFriends(usid))
 	fid = getUserIdFromEmail(email)
 	if isFriend(usid, fid):
-		return render_template('addf.html', already = 'True')
+		return render_template('addf.html', already = 'True', friends = getUsersFriends(usid))
 	if usid == fid:
 		return render_template('addf.html', err = 'True')
 	if cursor.execute('''INSERT INTO Friends (usid, fid) VALUES (%s, %s)''',(usid,fid)):
 		conn.commit()
-		return render_template('addf.html', added = 'True')
+		return render_template('addf.html', added = 'True', friends = getUsersFriends(usid))
 
-	return render_template('addf.html', err = 'True')
+	return render_template('addf.html', err = 'True', friends = getUsersFriends(usid))
 		
 
 	#information did not match
@@ -228,6 +230,24 @@ def isFriend(userid,friend_id):
 		return True
 	else:
 		return False
+
+def getUsersFriends(uid):
+	cursor = conn.cursor()
+	cursor.execute("SELECT fid FROM Friends WHERE usid = '{0}'".format(uid))
+	ids = cursor.fetchall() #NOTE return a list of tuples, [(imgdata, pid, caption), ...]
+	return [getUserEmail(x[0]) for x in ids]
+	
+def getUserEmail(id):
+	cursor = conn.cursor()
+	cursor.execute("SELECT email  FROM Users WHERE user_id = '{0}'".format(id))
+	return cursor.fetchone()[0]
+
+#default page
+@app.route("/", methods=['GET'])
+def hello():
+	return render_template('hello.html', message='Welecome to Photoshare')
+
+
 
 #default page
 @app.route("/", methods=['GET'])
