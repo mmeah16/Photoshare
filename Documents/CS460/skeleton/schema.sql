@@ -4,14 +4,14 @@ DROP TABLE IF EXISTS Pictures CASCADE;
 DROP TABLE IF EXISTS Users CASCADE;
 
 CREATE TABLE Users (
-    user_id int4  AUTO_INCREMENT,
-    email varchar(255) UNIQUE,
-    password varchar(255),
-    fname varchar(20),
-    lname varchar(20),
-    dob date, 
+    user_id int4 NOT NULL AUTO_INCREMENT,
+    email varchar(255) NOT NULL UNIQUE,
+    password varchar(255) NOT NULL,
+    fname varchar(20) NOT NULL, 
+    lname varchar(20) NOT NULL,
+    dob date NOT NULL, 
     gender varchar(20),
-    hometown varchar(20),
+    hometown varchar(20), 
   CONSTRAINT users_pk PRIMARY KEY (user_id)
 );
 
