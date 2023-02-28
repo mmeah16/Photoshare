@@ -208,6 +208,8 @@ def add():
 	fid = getUserIdFromEmail(email)
 	if isFriend(usid, fid):
 		return render_template('addf.html', already = 'True')
+	if usid == fid:
+		return render_template('addf.html', err = 'True')
 	if cursor.execute('''INSERT INTO Friends (usid, fid) VALUES (%s, %s)''',(usid,fid)):
 		conn.commit()
 		return render_template('addf.html', added = 'True')
