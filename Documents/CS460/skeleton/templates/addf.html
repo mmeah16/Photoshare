@@ -1,0 +1,27 @@
+<!doctype html>
+<head>
+    <title>Add Friends!</title>
+</head>
+<a href="/profile">Go back home</a></h1>
+{%if already%}
+<h1> User is already in friends list! add another one or <a href="/profile">go to home</a></h1>
+{% endif %}
+{%if added%}
+<h1> User has been added to the friends list! add another one or <a href="/profile">go to home</a></h1>
+{% endif %}
+{%if notfound%}
+<h1> No such user! add existing one or <a href="/profile">go to home</a></h1>
+{% endif %}
+{%if err%}
+<h1> Err!  <a href="/profile">go to home</a></h1>
+{% endif %}
+    <body>
+            <h1>Enter Friend email below</h1>
+
+            <form method="post" enctype="multipart/form-data" action="/addfr">
+                <label for="email">Friend email:</label>
+                <input type="email" name="email" /><br/>
+                <input type="submit" />
+            </form>
+    </body>
+<a href='/'>Home</a>
