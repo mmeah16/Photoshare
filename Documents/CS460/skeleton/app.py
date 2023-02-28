@@ -193,6 +193,39 @@ def upload_file():
 		return render_template('upload.html')
 #end photo uploading code
 
+#Friends part
+@app.route('/addfr', methods=['GET', 'POST'])
+@flask_login.login_required
+def add():
+	usid = getUserIdFromEmail(flask_login.current_user.id)
+	if request.method == 'GET':
+		return render_template('addf.html')
+	email = flask.request.form['email']
+	cursor = conn.cursor()
+	#check if email is registered
+	if isEmailUnique(email):
+		return render_template('addf.html', notfound = 'True')
+	fid = getUserIdFromEmail(email)
+	if isFriend(usid, fid):
+		return render_template('addf.html', already = 'True')
+	if cursor.execute('''INSERT INTO Friends (usid, fid) VALUES (%s, %s)''',(usid,fid)):
+		conn.commit()
+		return render_template('addf.html', added = 'True')
+
+	return render_template('addf.html', err = 'True')
+		
+
+	#information did not match
+	return "<a href='/addfr'>Try again</a>\
+			</br><a href='/'>or back home</a>"
+
+def isFriend(userid,friend_id):
+	cursor = conn.cursor()
+	if cursor.execute("SELECT fid FROM Friends WHERE usid = '{0}' AND fid = '{1}' ".format(userid,friend_id)):
+		#this means there are greater than zero entries with that email
+		return True
+	else:
+		return False
 
 #default page
 @app.route("/", methods=['GET'])
