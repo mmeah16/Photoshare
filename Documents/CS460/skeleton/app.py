@@ -205,7 +205,6 @@ def view_photos():
 
 
 #Friends part
-
 @app.route('/addfr', methods=['GET', 'POST'])
 @flask_login.login_required
 def add():
@@ -256,17 +255,32 @@ def getUserEmail(id):
 
 @app.route('/inspect', methods=['GET', 'POST'])
 def vimage():
-	if request.method == 'POST':
 		photo_id = flask.request.form['pho']
 		owenerId = getPhotoOwner(photo_id)
+		action = flask.request.form['action']
+		uid = getUserIdFromEmail(flask_login.current_user.id)
 		isOwener = False
-		if owenerId == getUserIdFromEmail(flask_login.current_user.id):
+		isLiked = LikedBy(photo_id, uid)
+		if owenerId == uid:
 			isOwener = True
-		return render_template("inspect.html", owener = isOwener, picdata = getPhotoData(photo_id),\
-			 caption = getPhotoCap(photo_id), base64=base64)
+		if action == 'no':
+			return render_template("inspect.html", owner = isOwener, picdata = getPhotoData(photo_id),liked = isLiked,\
+				caption = getPhotoCap(photo_id), base64=base64, likes = getPhotoLikes(photo_id), comments = getPhotoComments(photo_id),imid = photo_id)
+		if action == 'like':
+			if cursor.execute('''INSERT INTO Likes (user_id, picture_id) VALUES (%s, %s)''',(uid,photo_id)):
+				conn.commit()
+				return render_template("inspect.html", owner = isOwener, picdata = getPhotoData(photo_id),liked = True,\
+					caption = getPhotoCap(photo_id), base64=base64, likes = getPhotoLikes(photo_id), comments = getPhotoComments(photo_id),imid = photo_id)
+		if action == 'comment':
+			txt = flask.request.form['text']
+			if cursor.execute('''INSERT INTO Comments (user_id, picture_id,ctext) VALUES (%s, %s,%s)''',(uid,photo_id,txt)):
+				conn.commit()
+				return render_template("inspect.html", owner = isOwener, picdata = getPhotoData(photo_id),liked = isLiked,\
+					caption = getPhotoCap(photo_id), base64=base64, likes = getPhotoLikes(iphoto_idd), comments = getPhotoComments(photo_id),imid = photo_id)
+		
+		return render_template("inspect.html", owner = isOwener, picdata = getPhotoData(photo_id),liked = isLiked,\
+				caption = getPhotoCap(photo_id), base64=base64, likes = getPhotoLikes(photo_id), comments = getPhotoComments(photo_id), imid = photo_id)
 
-
-		return(render_template("inspect.html") )
 def getPhotoOwner(id):
 	cursor = conn.cursor()
 	cursor.execute("SELECT user_id  FROM Pictures WHERE picture_id = '{0}'".format(id))
@@ -283,8 +297,31 @@ def getPhotoCap(id):
 	return cursor.fetchone()[0]
 def getPhotoComments(id):
 	cursor = conn.cursor()
-	cursor.execute("SELECT ctext FROM Pictures WHERE picture_id = '{0}'".format(id))
-	return cursor.fetchone()
+	if cursor.execute("SELECT  ctext, user_id FROM Comments WHERE picture_id = '{0}'".format(id)):
+		ucoms = []
+		for uc in cursor.fetchall():
+			ucoms  = ucoms + [(getUserEmail(uc[1]),uc[0])]
+		return ucoms
+	else:
+		return []
+def getPhotoLikes(id):
+	cursor = conn.cursor()
+	if cursor.execute("SELECT email FROM Likes, Users WHERE picture_id = '{0}' And likes.user_id = Users.user_id".format(id)):
+		eml = []
+		for em in cursor.fetchall():
+			eml  = eml + [em[0]]
+		return eml
+	else:
+		return []
+
+def LikedBy(pid,uid):
+	cursor = conn.cursor()
+	if cursor.execute("SELECT user_id FROM Likes WHERE user_id = '{0}' AND picture_id = '{1}' ".format(uid,pid)):
+		#this means there are greater than zero entries with that email
+		return True
+	else:
+		return False
+
 
 #default page
 @app.route("/", methods=['GET'])
