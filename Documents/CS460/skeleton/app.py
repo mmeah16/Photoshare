@@ -185,17 +185,21 @@ def upload_file():
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		imgfile = request.files['photo']
 		caption = request.form.get('caption')
-		album = request.form.get('albumn')
-		if not exist_album(uid, album):
-			create_album(uid,album)
-		photo_data =imgfile.read()
+		tag = request.form.get('tag')
 		cursor = conn.cursor()
-		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption, album_id) VALUES (%s, %s, %s, %s )''', (photo_data, uid, caption, getAlbumId(album,uid)))
+		photo_data =imgfile.read()
+		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption) VALUES (%s, %s, %s )''', (photo_data, uid, caption))
+		picture_id = conn.insert_id()
+		print(picture_id)
+		if tag:
+			cursor.execute(''' INSERT IGNORE INTO Tags (word) VALUES (%s)''', (tag,))
+			cursor.execute(''' INSERT INTO Tagged (word, picture_id) VALUES (%s, %s)''', (tag, picture_id ))
 		conn.commit()
 		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid), base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:
 		return render_template('upload.html')
+#end photo uploading code
 
 def create_album(uid, alb):
 	cursor.execute('''INSERT INTO Albums (user_id, album_name) VALUES (%s, %s)''',(uid,alb))
@@ -206,7 +210,6 @@ def getAlbumId(an, uid):
 	cursor = conn.cursor()
 	cursor.execute("SELECT album_id  FROM Albums WHERE user_id = '{0}' AND album_name = '{1}' ".format(uid,an))
 	return cursor.fetchone()[0]
-#end photo uploading code
 
 @app.route('/addfr', methods=['GET', 'POST'])
 @flask_login.login_required
