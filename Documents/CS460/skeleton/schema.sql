@@ -1,5 +1,6 @@
 CREATE DATABASE IF NOT EXISTS photoshare;
 USE photoshare;
+DROP TABLE IF EXISTS Likes CASCADE;
 DROP TABLE IF EXISTS Comments CASCADE;
 DROP TABLE IF EXISTS Friends CASCADE;
 DROP TABLE IF EXISTS Pictures CASCADE;
@@ -48,8 +49,15 @@ CREATE TABLE Comments
   CONSTRAINT comment_pk PRIMARY KEY (comment_id),
   FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE,
   FOREIGN KEY (picture_id) REFERENCES Pictures (picture_id) ON DELETE CASCADE
-  
 );
+CREATE TABLE Likes
+(
+  user_id int4 NOT NULL,
+  picture_id int4 NOT NULL,
+  INDEX upid_idx (user_id),
+  PRIMARY KEY(user_id, picture_id),
+  FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE,
+  FOREIGN KEY (picture_id) REFERENCES Pictures (picture_id) ON DELETE CASCADE
 );
 INSERT INTO Users (email, password) VALUES ('test@bu.edu', 'test');
 INSERT INTO Users (email, password) VALUES ('test1@bu.edu', 'test');
