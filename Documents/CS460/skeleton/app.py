@@ -253,17 +253,49 @@ def getUserEmail(id):
 	cursor.execute("SELECT email  FROM Users WHERE user_id = '{0}'".format(id))
 	return cursor.fetchone()[0]
 
+
+@app.route('/inspect', methods=['GET', 'POST'])
+def vimage():
+	if request.method == 'POST':
+		photo_id = flask.request.form['pho']
+		owenerId = getPhotoOwner(photo_id)
+		isOwener = False
+		if owenerId == getUserIdFromEmail(flask_login.current_user.id):
+			isOwener = True
+		return render_template("inspect.html", owener = isOwener, picdata = getPhotoData(photo_id),\
+			 caption = getPhotoCap(photo_id), base64=base64)
+
+
+		return(render_template("inspect.html") )
+def getPhotoOwner(id):
+	cursor = conn.cursor()
+	cursor.execute("SELECT user_id  FROM Pictures WHERE picture_id = '{0}'".format(id))
+	return cursor.fetchone()[0]
+
+def getPhotoData(id):
+	cursor = conn.cursor()
+	cursor.execute("SELECT imgdata FROM Pictures WHERE picture_id = '{0}'".format(id))
+	return cursor.fetchone()[0]
+
+def getPhotoCap(id):
+	cursor = conn.cursor()
+	cursor.execute("SELECT caption FROM Pictures WHERE picture_id = '{0}'".format(id))
+	return cursor.fetchone()[0]
+def getPhotoComments(id):
+	cursor = conn.cursor()
+	cursor.execute("SELECT ctext FROM Pictures WHERE picture_id = '{0}'".format(id))
+	return cursor.fetchone()
+
 #default page
 @app.route("/", methods=['GET'])
 def hello():
-	return render_template('hello.html', message='Welecome to Photoshare')
+	if not current_user.is_authenticated():
+		return render_template('hello.html', message='Welecome to Photoshare')
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	return render_template('hello.html', message='Welecome to Photoshare', photos=getUsersPhotos(uid), base64=base64)
 
 
 
-#default page
-@app.route("/", methods=['GET'])
-def hello():
-	return render_template('hello.html', message='Welecome to Photoshare')
 
 
 if __name__ == "__main__":
