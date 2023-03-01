@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS Likes CASCADE;
 DROP TABLE IF EXISTS Comments CASCADE;
 DROP TABLE IF EXISTS Friends CASCADE;
 DROP TABLE IF EXISTS Pictures CASCADE;
+DROP TABLE IF EXISTS Albums CASCADE;
 DROP TABLE IF EXISTS Users CASCADE;
 
 CREATE TABLE Users (
@@ -27,6 +28,16 @@ CREATE TABLE Friends (
     FOREIGN KEY (fid) REFERENCES Users (user_id) ON DELETE CASCADE
 );
 
+CREATE TABLE Albums
+(
+  album_id int AUTO_INCREMENT,
+  user_id int4 NOT NULL,
+  album_name VARCHAR(40) NOT NULL,
+  doc DATETIME DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT album_pk PRIMARY KEY (album_id),
+  FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE
+);
+
 
 CREATE TABLE Pictures
 (
@@ -35,9 +46,12 @@ CREATE TABLE Pictures
   imgdata longblob ,
   caption VARCHAR(255),
   INDEX upid_idx (user_id),
+  album_id INT NOT NULL,
   CONSTRAINT pictures_pk PRIMARY KEY (picture_id),
-  FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE,
+  FOREIGN KEY (album_id) REFERENCES Albums (album_id) ON DELETE CASCADE
 );
+
 
 CREATE TABLE Comments
 (
