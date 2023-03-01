@@ -1,11 +1,6 @@
-CREATE DATABASE IF NOT EXISTS photoshare;
+DROP DATABASE IF EXISTS photoshare;
+CREATE DATABASE photoshare;
 USE photoshare;
-DROP TABLE IF EXISTS Likes CASCADE;
-DROP TABLE IF EXISTS Comments CASCADE;
-DROP TABLE IF EXISTS Friends CASCADE;
-DROP TABLE IF EXISTS Pictures CASCADE;
-DROP TABLE IF EXISTS Albums CASCADE;
-DROP TABLE IF EXISTS Users CASCADE;
 
 CREATE TABLE Users (
     user_id int4 NOT NULL AUTO_INCREMENT,
@@ -38,7 +33,6 @@ CREATE TABLE Albums
   FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE
 );
 
-
 CREATE TABLE Pictures
 (
   picture_id int AUTO_INCREMENT,
@@ -46,12 +40,9 @@ CREATE TABLE Pictures
   imgdata longblob ,
   caption VARCHAR(255),
   INDEX upid_idx (user_id),
-  album_id INT NOT NULL,
   CONSTRAINT pictures_pk PRIMARY KEY (picture_id),
-  FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE,
-  FOREIGN KEY (album_id) REFERENCES Albums (album_id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE
 );
-
 
 CREATE TABLE Comments
 (
@@ -73,5 +64,16 @@ CREATE TABLE Likes
   FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE,
   FOREIGN KEY (picture_id) REFERENCES Pictures (picture_id) ON DELETE CASCADE
 );
-INSERT INTO Users (email, password) VALUES ('test@bu.edu', 'test');
-INSERT INTO Users (email, password) VALUES ('test1@bu.edu', 'test');
+
+CREATE TABLE Tags(
+	word VARCHAR(20),
+    PRIMARY KEY (word)
+);
+
+CREATE TABLE Tagged(
+	word VARCHAR(20),
+    picture_id int, 
+    PRIMARY KEY (word, picture_id),
+    FOREIGN KEY (picture_id) REFERENCES Pictures(picture_id),
+    FOREIGN KEY (word) REFERENCES Tags(word)
+);
