@@ -1,0 +1,25 @@
+<!doctype html>
+<head>
+    <title>Add Friends!</title>
+</head>
+<a href="/profile">Go back home</a></h1>
+{%if owner%}
+<h1> This is your photo, you can view likes and comments but can't comment on it </h1>
+{% else %}
+<h1> This is your photo, you can view likes and comments but can't comment on it </h1>
+{% endif %}
+{%if added%}
+<h1> You succssesfuly addedd a comment</h1>
+{% endif %}
+{%if liked%}
+<h1> You liked this photo</h1>
+{% endif %}
+{%if err%}
+<h1> Err!  <a href="/profile">go to home</a></h1>
+{% endif %}
+    <body>
+            <h1>{{caption}}</h1>
+            <img src='data:image/jpg;base64, {{ base64.b64encode(picdata).decode("ascii") }}' width = 700 height= 300/></li>
+            <!-- Place likes and comments -->
+    </body>
+<a href='/'>Home</a>
