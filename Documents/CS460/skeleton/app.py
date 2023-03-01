@@ -1,3 +1,4 @@
+
 ######################################
 # author ben lawson <balawson@bu.edu>
 # Edited by: Craig Einstein <einstein@bu.edu>
@@ -23,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'cs460cs460'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'Mhd050135'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -168,7 +169,8 @@ def isEmailUnique(email):
 @app.route('/profile')
 @flask_login.login_required
 def protected():
-	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile")
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile", photos=getUsersPhotos(uid), base64=base64)
 
 #begin photo uploading code
 # photos uploaded using base64 encoding so they can be directly embeded in HTML
@@ -183,28 +185,29 @@ def upload_file():
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		imgfile = request.files['photo']
 		caption = request.form.get('caption')
+		album = request.form.get('albumn')
+		if not exist_album(uid, album):
+			create_album(uid,album)
 		photo_data =imgfile.read()
 		cursor = conn.cursor()
-		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption) VALUES (%s, %s, %s )''', (photo_data, uid, caption))
+		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption, album_id) VALUES (%s, %s, %s, %s )''', (photo_data, uid, caption, getAlbumId(album,uid)))
 		conn.commit()
 		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid), base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:
 		return render_template('upload.html')
+
+def create_album(uid, alb):
+	cursor.execute('''INSERT INTO Albums (user_id, album_name) VALUES (%s, %s)''',(usid,album))
+	conn.commit()
+	return 
+
+def getAlbumId(an, uid):
+	cursor = conn.cursor()
+	cursor.execute("SELECT album_id  FROM Albums WHERE user_id = '{0}' AND album_name = '{1}' ".format(uid,an))
+	return cursor.fetchone()[0]
 #end photo uploading code
 
-# Begin photo viewing process
-@app.route('/photos_list', methods=['GET','POST'])
-def view_photos():
-	uid = getUserIdFromEmail(flask_login.current_user.id)
-	return render_template('view_photos.html', photos=getUsersPhotos(uid), base64=base64)
-	
-
-# End photo viewing process 
-
-
-
-#Friends part
 @app.route('/addfr', methods=['GET', 'POST'])
 @flask_login.login_required
 def add():
@@ -323,14 +326,51 @@ def LikedBy(pid,uid):
 		return False
 
 
+
+@app.route('/addalb', methods=['GET', 'POST'])
+@flask_login.login_required
+def malbum():
+	usid = getUserIdFromEmail(flask_login.current_user.id)
+	if request.method == 'GET':
+		return render_template('album.html', albums = getUsersAlbums(usid))
+	album = flask.request.form['alb']
+	cursor = conn.cursor()
+	#check if email is registered
+	if exist_album(usid, album):
+		return render_template('album.html', already = 'True', albums = getUsersAlbums(usid))
+	if cursor.execute('''INSERT INTO Albums (user_id, album_name) VALUES (%s, %s)''',(usid,album)):
+		conn.commit()
+		return render_template('album.html', added = 'True', albums = getUsersAlbums(usid))
+
+	return render_template('album.html', err = 'True', albums = getUsersAlbumss(usid))
+		
+
+	#information did not match
+	return "<a href='/addfr'>Try again</a>\
+			</br><a href='/'>or back home</a>"
+
+def exist_album(userid,album_name):
+	cursor = conn.cursor()
+	if cursor.execute("SELECT user_id FROM Albums WHERE user_id = '{0}' AND album_name = '{1}' ".format(userid,album_name)):
+		#this means there are greater than zero entries with that email
+		return True
+	else:
+		return False
+
+def getUsersAlbums(uid):
+	cursor = conn.cursor()
+	cursor.execute("SELECT album_name FROM Albums WHERE user_id = '{0}'".format(uid))
+	ids = cursor.fetchall() #NOTE return a list of tuples, [(imgdata, pid, caption), ...]
+	return [x[0] for x in ids]
+	
+
 #default page
 @app.route("/", methods=['GET'])
 def hello():
-	if not current_user.is_authenticated():
+	if  not flask_login.current_user.is_authenticated:
 		return render_template('hello.html', message='Welecome to Photoshare')
 	uid = getUserIdFromEmail(flask_login.current_user.id)
 	return render_template('hello.html', message='Welecome to Photoshare', photos=getUsersPhotos(uid), base64=base64)
-
 
 
 
@@ -339,3 +379,4 @@ if __name__ == "__main__":
 	#this is invoked when in the shell  you run
 	#$ python app.py
 	app.run(port=5000, debug=True)
+
