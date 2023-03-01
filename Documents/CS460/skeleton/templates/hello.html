@@ -14,6 +14,10 @@
     {% for photo in photos %}
 
         <li>{{photo[2]}}<br>
+          <form method="post" enctype="multipart/form-data" action="/inspect">
+            <input type="hidden" name="action" value="no" />
+            <button name="pho" type="submit" value={{photo[1]}}>Press</button>
+        </form>
         <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
     {% endfor %}
     </ul>
