@@ -198,7 +198,7 @@ def upload_file():
 		return render_template('upload.html')
 
 def create_album(uid, alb):
-	cursor.execute('''INSERT INTO Albums (user_id, album_name) VALUES (%s, %s)''',(usid,album))
+	cursor.execute('''INSERT INTO Albums (user_id, album_name) VALUES (%s, %s)''',(uid,alb))
 	conn.commit()
 	return 
 
