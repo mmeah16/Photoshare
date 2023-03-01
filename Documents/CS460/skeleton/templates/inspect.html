@@ -6,13 +6,19 @@
 {%if owner%}
 <h1> This is your photo, you can view likes and comments but can't comment on it </h1>
 {% else %}
-<h1> This is your photo, you can view likes and comments but can't comment on it </h1>
+<h1> you can view likes and comments and add comment on it </h1>
 {% endif %}
 {%if added%}
 <h1> You succssesfuly addedd a comment</h1>
 {% endif %}
 {%if liked%}
 <h1> You liked this photo</h1>
+{%else%}
+<h1>press to like this photo</h1>
+<form method="post" enctype="multipart/form-data" action="/inspect">
+    <input type="hidden" name="action" value="like" />
+    <button name="pho" type="submit" value={{imid}}>Press</button>
+</form>
 {% endif %}
 {%if err%}
 <h1> Err!  <a href="/profile">go to home</a></h1>
@@ -20,6 +26,43 @@
     <body>
             <h1>{{caption}}</h1>
             <img src='data:image/jpg;base64, {{ base64.b64encode(picdata).decode("ascii") }}' width = 700 height= 300/></li>
+
             <!-- Place likes and comments -->
+            {%if owner %} 
+            <p> View your post comments</p>
+            {%else%}
+            <form method="post" enctype="multipart/form-data" action="/inspect">
+                <input type="hidden" name="action" value="comment" />
+                <label for="comment">Add your comment:</label>
+                <input type="text" name="text" /><br/>
+                <button name="pho" type="submit" value={{imid}}>Press</button>
+                {% endif %}
     </body>
+    <hr>
+    {% if likes %}
+    <h2>Listing post liked by: </h2>
+        <ul>
+        {% for ulike in likes %}
+
+            <li>{{ulike}}<br>
+        {% endfor %}
+        </ul>
+{%else %}
+<h2>No one liked this post yet! </h2>
+
+{% endif %}
+<hr>
+{% if comments %}
+<h2>Listing post Comments by: </h2>
+    <ul>
+    {% for com in comments %}
+
+        <li><p style="color:blue;">{{com[0]}}: </p> <p> {{com[1]}} </p></li>
+
+    {% endfor %}
+    </ul>
+{%else %}
+<h2>No one commented on this post yet! </h2>
+
+{% endif %}
 <a href='/'>Home</a>
