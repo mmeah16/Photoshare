@@ -1,0 +1,37 @@
+<!doctype html>
+<head>
+    <title>Add albums!</title>
+</head>
+<a href="/profile">Go back home</a></h1>
+{%if already%}
+<h1> Album already exist! add another one or <a href="/profile">go to home</a></h1>
+{% endif %}
+{%if added%}
+<h1> Album has been created add another one or <a href="/profile">go to home</a></h1>
+{% endif %}
+
+    <body>
+            <h1>Enter new Album name below</h1>
+
+            <form method="post" enctype="multipart/form-data" action="/addalb">
+                <label for="alb">New album:</label>
+                <input type="text" name="alb" /><br/>
+                <input type="submit" />
+            </form>
+
+            <hr>
+
+            {% if albums %}
+                <h2>Listing your albums below: </h2>
+                    <ul>
+                    {% for album in albums %}
+
+                        <li>{{album}}<br>
+                    {% endfor %}
+                    </ul>
+            {%else %}
+            <h2>you have no albums! </h2>
+            
+            {% endif %}
+    </body>
+<a href='/'>Home</a>
