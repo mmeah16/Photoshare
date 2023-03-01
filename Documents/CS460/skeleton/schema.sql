@@ -1,5 +1,6 @@
 CREATE DATABASE IF NOT EXISTS photoshare;
 USE photoshare;
+DROP TABLE IF EXISTS Comments CASCADE;
 DROP TABLE IF EXISTS Friends CASCADE;
 DROP TABLE IF EXISTS Pictures CASCADE;
 DROP TABLE IF EXISTS Users CASCADE;
@@ -15,6 +16,7 @@ CREATE TABLE Users (
     hometown varchar(20), 
   CONSTRAINT users_pk PRIMARY KEY (user_id)
 );
+
 CREATE TABLE Friends (
     usid int4 NOT NULL,
     fid int4 NOT NULL,
@@ -23,14 +25,31 @@ CREATE TABLE Friends (
     FOREIGN KEY (usid) REFERENCES Users (user_id) ON DELETE CASCADE,
     FOREIGN KEY (fid) REFERENCES Users (user_id) ON DELETE CASCADE
 );
+
+
 CREATE TABLE Pictures
 (
-  picture_id int4  AUTO_INCREMENT,
+  picture_id int AUTO_INCREMENT,
   user_id int4,
   imgdata longblob ,
   caption VARCHAR(255),
   INDEX upid_idx (user_id),
-  CONSTRAINT pictures_pk PRIMARY KEY (picture_id)
+  CONSTRAINT pictures_pk PRIMARY KEY (picture_id),
+  FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE Comments
+(
+  comment_id int AUTO_INCREMENT,
+  user_id int4,
+  picture_id int4,
+  ctext TEXT,
+  INDEX upid_idx (user_id),
+  CONSTRAINT comment_pk PRIMARY KEY (comment_id),
+  FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE,
+  FOREIGN KEY (picture_id) REFERENCES Pictures (picture_id) ON DELETE CASCADE
+  
+);
 );
 INSERT INTO Users (email, password) VALUES ('test@bu.edu', 'test');
 INSERT INTO Users (email, password) VALUES ('test1@bu.edu', 'test');
