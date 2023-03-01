@@ -193,6 +193,17 @@ def upload_file():
 		return render_template('upload.html')
 #end photo uploading code
 
+# Begin photo viewing process
+@app.route('/photos_list', methods=['GET','POST'])
+def view_photos():
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	return render_template('view_photos.html', photos=getUsersPhotos(uid), base64=base64)
+	
+
+# End photo viewing process 
+
+
+
 #Friends part
 
 @app.route('/addfr', methods=['GET', 'POST'])
