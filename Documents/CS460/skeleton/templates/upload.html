@@ -1,8 +1,11 @@
 <!-- author ben lawson (balawson@bu.edu) -->
-<head>
-    <title>Upload a photo!</title>
+<title>Upload a photo!</title>
 </head>
     <body>
+
+    {% if message %}
+        <h4>{{message}}</h4>
+    {% endif %}
         <div class="title">
             <h1>Upload a photo to Photoshare</h1>
         </div>
@@ -11,10 +14,11 @@
                 <input type="file" name="photo" required='true' /><br />
                 <label for="caption">Please caption:</label>
                 <input type="text" name="caption" required='true' /><br />
-                <label for="tag">Tag your photo with a word, let your creativity roam free!:</label>
-                <input type="text" name="tag" required="false"><br />
-                <label for="albumn">Add to an existing album, If album doesn't exit it will be added for you:</label>
-                <input type="text" name="albumn" required='true' /><br />
+                <label for="album">Enter the album to add to:</label>
+                <input type="text" name="album" required='true' /><br />
+                <label for="tag">Tag your photo! (lower case, one word):</label>
+                <input type="text" name="tag" required="false">
                 <input type="submit" value="Upload" />
             </form>
     </body>
+<head>
