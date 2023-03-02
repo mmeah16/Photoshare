@@ -13,6 +13,10 @@
   <li><a href='/upload'>Upload a photo</a> </li>
   <li><a href='/logout'>Logout</a></li>
   <li><a href='/'>Home</a></li>
+  <li><a href='/search_tags'>Search All Photos by Tag</a></li>
+  <li><a href='/search_your_tags'>Search Your Photos by Tag</a></li>
+  <li><a href='/top_three_tags'>Most Popular Photoshare Tags</a></li>
+
   </ul>
 {% if photos %}
 <h2>Here are your photos</h2>
@@ -23,7 +27,11 @@
           <form method="post" enctype="multipart/form-data" action="/inspect">
             <input type="hidden" name="action" value="no" />
             <button name="pho" type="submit" value={{photo[1]}}>Press</button>
-        </form>
+          </form>
+          <form method="post" enctype="multipart/form-data" action="/delete">
+            <input type="hidden" name="action" value="no" />
+            <button name="pho" type="submit" value={{photo[1]}}>Delete</button>
+          </form>
         <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'width = 700 height= 300/></li>
     {% endfor %}
     </ul>
@@ -36,5 +44,5 @@
 {% endif %}
 
 
-='/'>Home</a></li>
+</a></li>
 </ul>
