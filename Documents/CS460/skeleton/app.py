@@ -365,7 +365,30 @@ def getUsersAlbums(uid):
 	cursor.execute("SELECT album_name FROM Albums WHERE user_id = '{0}'".format(uid))
 	ids = cursor.fetchall() #NOTE return a list of tuples, [(imgdata, pid, caption), ...]
 	return [x[0] for x in ids]
-	
+@app.route("/search_tags", methods=['GET', 'POST'])
+def search_tags():
+	if request.method == 'POST':
+		photo_data = []
+		photo_nums = []
+		tag = request.form.get('tag')
+		print(tag)
+		cursor = conn.cursor()
+		cursor.execute("SELECT picture_id FROM Tagged WHERE word = '{0}'".format(tag))
+		photos = cursor.fetchall()
+		print(photos)
+		for i in range(len(photos)):
+			photo_nums += [photos[i][0]]
+		print(photo_nums)
+		#i = 1 
+		for i in range(len(photos)):
+			#print(photos[i][0])
+			print(cursor.execute("SELECT imgdata FROM Pictures WHERE picture_id = '{0}'".format(photo_nums[i-1])))
+			#print(cursor.fetchall())
+			photo_data += cursor.fetchall()
+			#print(photo_data)
+			#print(photo_data)
+		return render_template('search_tags.html' , photos = photo_data, base64 = base64)
+	return render_template('search_tags.html')
 
 #default page
 @app.route("/", methods=['GET'])
