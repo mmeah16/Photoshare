@@ -187,15 +187,18 @@ def upload_file():
 		if not exist_album(uid, album):
 			create_album(uid,album)
 		tag = request.form.get('tag')
+		tags = tag.split()
+		print(tags)
 		cursor = conn.cursor()
 		photo_data =imgfile.read()
 		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption, album_id) VALUES (%s, %s, %s, %s )''', (photo_data, uid, caption, getAlbumId(album,uid)))
 		picture_id = conn.insert_id()
 		print(picture_id)
 		if tag:
-			cursor.execute(''' INSERT IGNORE INTO Tags (word) VALUES (%s)''', (tag,))
-			cursor.execute(''' INSERT INTO Tagged (word, picture_id) VALUES (%s, %s)''', (tag, picture_id ))
-		conn.commit()
+			for i in range(len(tags)):
+				cursor.execute(''' INSERT IGNORE INTO Tags (word) VALUES (%s)''', (tags[i],))
+				cursor.execute(''' INSERT INTO Tagged (word, picture_id) VALUES (%s, %s)''', (tags[i], picture_id ))
+			conn.commit()
 		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid), base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:
