@@ -1,0 +1,21 @@
+<head>
+	<title>Top 3 Tags</title>
+</head>
+
+<li><a href='/'>Home</a></li>
+    <body>
+        <div class="title">
+            <h1>The Three Most Popular Tags on Photoshare!</h1>
+        </div>
+
+    {% if tags %}
+
+    	{% for tag in tags %}
+
+    		<li>{{tag[0]}}</li>
+    		<form method="post"  action="/top_three_tags">
+        	<input type="hidden" value={{tag[0]}} name="tag" /> 
+        	</form>
+        {% endfor %}
+
+    {% endif %}
