@@ -1,4 +1,3 @@
-
 ######################################
 # author ben lawson <balawson@bu.edu>
 # Edited by: Craig Einstein <einstein@bu.edu>
@@ -24,7 +23,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'Mhd050135'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'cs460cs460'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -169,8 +168,7 @@ def isEmailUnique(email):
 @app.route('/profile')
 @flask_login.login_required
 def protected():
-	uid = getUserIdFromEmail(flask_login.current_user.id)
-	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile", photos=getUsersPhotos(uid), base64=base64)
+	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile")
 
 #begin photo uploading code
 # photos uploaded using base64 encoding so they can be directly embeded in HTML
@@ -185,10 +183,13 @@ def upload_file():
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		imgfile = request.files['photo']
 		caption = request.form.get('caption')
+		album = request.form.get('album')
+		if not exist_album(uid, album):
+			create_album(uid,album)
 		tag = request.form.get('tag')
 		cursor = conn.cursor()
 		photo_data =imgfile.read()
-		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption) VALUES (%s, %s, %s )''', (photo_data, uid, caption))
+		cursor.execute('''INSERT INTO Pictures (imgdata, user_id, caption, album_id) VALUES (%s, %s, %s, %s )''', (photo_data, uid, caption, getAlbumId(album,uid)))
 		picture_id = conn.insert_id()
 		print(picture_id)
 		if tag:
@@ -199,8 +200,7 @@ def upload_file():
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:
 		return render_template('upload.html')
-#end photo uploading code
-
+	
 def create_album(uid, alb):
 	cursor.execute('''INSERT INTO Albums (user_id, album_name) VALUES (%s, %s)''',(uid,alb))
 	conn.commit()
@@ -211,6 +211,25 @@ def getAlbumId(an, uid):
 	cursor.execute("SELECT album_id  FROM Albums WHERE user_id = '{0}' AND album_name = '{1}' ".format(uid,an))
 	return cursor.fetchone()[0]
 
+#end photo uploading code
+
+# Begin photo viewing process
+@app.route('/photos_list', methods=['GET','POST'])
+def view_photos():
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	if request.method == 'POST':
+		photo_id = request.form.get('picture_id')
+		print('test')
+		deletePicture(photo_id)
+		return render_template('view_photos.html', photos=getUsersPhotos(uid), base64=base64)
+	return render_template('view_photos.html', photos=getUsersPhotos(uid), base64=base64)
+	
+
+# End photo viewing process 
+
+
+
+#Friends part
 @app.route('/addfr', methods=['GET', 'POST'])
 @flask_login.login_required
 def add():
@@ -282,7 +301,7 @@ def vimage():
 			if cursor.execute('''INSERT INTO Comments (user_id, picture_id,ctext) VALUES (%s, %s,%s)''',(uid,photo_id,txt)):
 				conn.commit()
 				return render_template("inspect.html", owner = isOwener, picdata = getPhotoData(photo_id),liked = isLiked,\
-					caption = getPhotoCap(photo_id), base64=base64, likes = getPhotoLikes(iphoto_idd), comments = getPhotoComments(photo_id),imid = photo_id)
+					caption = getPhotoCap(photo_id), base64=base64, likes = getPhotoLikes(photo_id), comments = getPhotoComments(photo_id),imid = photo_id)
 		
 		return render_template("inspect.html", owner = isOwener, picdata = getPhotoData(photo_id),liked = isLiked,\
 				caption = getPhotoCap(photo_id), base64=base64, likes = getPhotoLikes(photo_id), comments = getPhotoComments(photo_id), imid = photo_id)
@@ -328,8 +347,6 @@ def LikedBy(pid,uid):
 	else:
 		return False
 
-
-
 @app.route('/addalb', methods=['GET', 'POST'])
 @flask_login.login_required
 def malbum():
@@ -345,7 +362,7 @@ def malbum():
 		conn.commit()
 		return render_template('album.html', added = 'True', albums = getUsersAlbums(usid))
 
-	return render_template('album.html', err = 'True', albums = getUsersAlbumss(usid))
+	return render_template('album.html', err = 'True', albums = getUsersAlbums(usid))
 		
 
 	#information did not match
@@ -365,22 +382,29 @@ def getUsersAlbums(uid):
 	cursor.execute("SELECT album_name FROM Albums WHERE user_id = '{0}'".format(uid))
 	ids = cursor.fetchall() #NOTE return a list of tuples, [(imgdata, pid, caption), ...]
 	return [x[0] for x in ids]
+
+
 @app.route("/search_tags", methods=['GET', 'POST'])
 def search_tags():
 	if request.method == 'POST':
 		photo_data = []
 		photo_nums = []
+		tags = []
 		tag = request.form.get('tag')
-		print(tag)
-		cursor = conn.cursor()
-		cursor.execute("SELECT picture_id FROM Tagged WHERE word = '{0}'".format(tag))
-		photos = cursor.fetchall()
-		print(photos)
-		for i in range(len(photos)):
-			photo_nums += [photos[i][0]]
-		print(photo_nums)
+		tags = tag.split()
+		print(tags)
+		for i in range(len(tags)):
+			cursor = conn.cursor()
+			cursor.execute("SELECT picture_id FROM Tagged WHERE word = '{0}'".format(tags[i]))
+			photos = cursor.fetchall()
+			for i in range(len(photos)):
+				photo_nums += [photos[i][0]]
+				print(photo_nums)
+			print("focus:")
+			print(photo_nums)
+			print()
 		#i = 1 
-		for i in range(len(photos)):
+		for i in range(len(photo_nums)):
 			#print(photos[i][0])
 			print(cursor.execute("SELECT imgdata FROM Pictures WHERE picture_id = '{0}'".format(photo_nums[i-1])))
 			#print(cursor.fetchall())
@@ -390,16 +414,78 @@ def search_tags():
 		return render_template('search_tags.html' , photos = photo_data, base64 = base64)
 	return render_template('search_tags.html')
 
+@app.route("/search_your_tags", methods=['GET', 'POST'])
+def search_your_tags():
+    if request.method == 'POST':
+        uid = getUserIdFromEmail(flask_login.current_user.id)
+        photo_data = []
+        photo_nums = []
+        tags = []
+        tag = request.form.get('tag')
+        tags = tag.split()
+        print(tags)
+        for i in range(len(tags)):
+            cursor = conn.cursor()
+            cursor.execute("SELECT t.picture_id FROM Tagged t JOIN Pictures p ON t.picture_id = p.picture_id WHERE t.word = '{0}' AND p.user_id = '{1}'".format(tag, uid))
+            photos = cursor.fetchall()
+            for i in range(len(photos)):
+                photo_nums += [photos[i][0]]
+                print(photo_nums)
+            print("focus:")
+            print(photo_nums)
+            print()
+        #i = 1 
+        for i in range(len(photo_nums)):
+            #print(photos[i][0])
+            print(cursor.execute("SELECT imgdata FROM Pictures WHERE picture_id = '{0}'".format(photo_nums[i-1])))
+            #print(cursor.fetchall())
+            photo_data += cursor.fetchall()
+            #print(photo_data)
+            #print(photo_data)
+        return render_template('search_your_tags.html' , photos = photo_data, base64 = base64)
+    return render_template('search_your_tags.html')
+
 #default page
 @app.route("/", methods=['GET'])
 def hello():
-	if  not flask_login.current_user.is_authenticated:
-		return render_template('hello.html', message='Welecome to Photoshare')
+	if not flask_login.current_user.is_authenticated:
+		return render_template('hello.html', message='Welcome to Photoshare')
 	uid = getUserIdFromEmail(flask_login.current_user.id)
 	return render_template('hello.html', message='Welecome to Photoshare', photos=getUsersPhotos(uid), base64=base64)
 
 
+@app.route("/delete", methods=['GET', 'POST'])
+def delete_photo():
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	photo_id = flask.request.form['pho']
+	deletePicture(photo_id)
+	return render_template('hello.html', message='Welecome to Photoshare', photos=getUsersPhotos(uid), base64=base64)
 
+
+
+def deletePicture(photo_id):
+	cursor = conn.cursor()
+	
+	cursor.execute("SELECT word FROM Tagged WHERE picture_id = '{0}'".format(photo_id))
+	tags = cursor.fetchall()
+
+	cursor.execute("DELETE FROM Tagged WHERE picture_id = '{0}'".format(photo_id))
+	conn.commit()
+		
+	for i in range(len(tags)):
+		cursor.execute("DELETE FROM Tags WHERE word = '{0}'".format(tags[i][0]))
+		conn.commit()
+	
+	cursor = conn.cursor()
+	cursor.execute("DELETE FROM Pictures WHERE picture_id = '{0}'".format(photo_id))
+	conn.commit()
+
+@app.route('/top_three_tags', methods=['GET', 'POST'])
+def top_tags():
+	cursor = conn.cursor()
+	cursor.execute("SELECT word, COUNT(word) FROM Tags GROUP BY word ORDER BY COUNT(word) DESC LIMIT 10")
+	tags = cursor.fetchall()
+	return render_template('topthreetags.html' , tags = tags)
 
 if __name__ == "__main__":
 	#this is invoked when in the shell  you run
