@@ -490,6 +490,41 @@ def top_tags():
 	tags = cursor.fetchall()
 	return render_template('topthreetags.html' , tags = tags)
 
+@app.route('/you_may_also_like', methods=['GET' , 'POST'])
+def recommended_photos():
+	uid = getUserIdFromEmail(flask_login.current_user.id)
+	photo_ids = []
+	photo_data = []
+	cursor = conn.cursor()
+	cursor.execute("""
+		SELECT p.picture_id, COUNT(t.word) AS tag_matches, COUNT(*) AS tag_count
+		FROM Pictures p
+		JOIN Tagged t ON p.picture_id = t.picture_id
+		JOIN (
+			SELECT t.word
+			FROM Pictures p
+			JOIN Tagged t ON p.picture_id = t.picture_id
+			WHERE p.user_id = %s
+			GROUP BY t.word
+			ORDER BY COUNT(*) DESC
+			LIMIT 3 -- limit to top 3 tags
+		) top_tags ON t.word = top_tags.word
+		WHERE p.user_id != %s  -- exclude current user's photos
+		GROUP BY p.picture_id
+		ORDER BY tag_matches DESC, tag_count ASC;
+		""", (uid, uid))
+	photos = cursor.fetchall()
+	for i in range(len(photos)):
+		photo_ids += [photos[i][0]]
+	for i in range(len(photo_ids)):
+        #print(photos[i][0])
+		print(cursor.execute("SELECT imgdata FROM Pictures WHERE picture_id = '{0}'".format(photo_ids[i-1])))
+        #print(cursor.fetchall())
+		photo_data += cursor.fetchall()
+	print("focus:")	
+	print(photo_data)
+	return render_template('you_may_also_like.html', photos=photo_data, base64=base64)
+
 if __name__ == "__main__":
 	#this is invoked when in the shell  you run
 	#$ python app.py
