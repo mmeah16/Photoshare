@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Take a look at photos you may like!</title>
+    </head>
+    <div class="title">
+        <h1>Take a look at photos you may like!</h1>
+    </div>
+    <li>Go <a href='/'>Home?</a></li>
+    <li>Go to <a href='/profile'>profile?</a></li>
+    <br>
+
+    {% if photos %}
+    <h2>Here are your photos</h2>
+        <ul>
+        {% for photo in photos %}
+                <input type="hidden" name="action" value="no" />
+                <button name="pho" type="submit" value={{photo[1]}}>Press</button>
+            </form>
+            <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+</html>
