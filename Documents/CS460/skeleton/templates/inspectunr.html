@@ -1,0 +1,49 @@
+<!doctype html>
+<head>
+    <title>inspect!</title>
+</head>
+
+<h1> To like this photo, you need to register an account</h1>
+
+
+    <body>
+            <h1>{{caption}}</h1>
+            <img src='data:image/jpg;base64, {{ base64.b64encode(picdata).decode("ascii") }}' width = 700 height= 300/></li>
+
+            <!-- Place likes and comments -->
+
+    </body>
+    <hr>
+    {% if likes %}
+    <h2>Listing post liked by: </h2>
+        <ul>
+        {% for ulike in likes %}
+
+            <li>{{ulike}}<br>
+        {% endfor %}
+        </ul>
+{%else %}
+<h2>No one liked this post yet! </h2>
+
+{% endif %}
+<hr>
+<p style="color:blue;">Add a comment</p>
+<form method="post" enctype="multipart/form-data" action="/inspect">
+    <input type="hidden" name="action" value="comment" />
+    <input type="text" name="text" /><br/>
+    <button name="pho" type="submit" value={{imid}}>Press</button>
+
+{% if comments %}
+<h2>Listing post Comments by: </h2>
+    <ul>
+    {% for com in comments %}
+
+        <li><p style="color:blue;">{{com[0]}}: </p> <p> {{com[1]}} </p></li>
+
+    {% endfor %}
+    </ul>
+{%else %}
+<h2>No one commented on this post yet! </h2>
+
+{% endif %}
+<a href='/'>Home</a>

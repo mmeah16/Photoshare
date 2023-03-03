@@ -1,24 +1,33 @@
 <!-- author ben lawson balawson@bu.edu -->
 <!DOCTYPE html>
 <html>
+
     <head>
-        <title>Search photos by your tags!</title>
+        <title>Search photos by albums!</title>
     </head>
     <body>
+    {%if notfound%}
+    <h1> No such user! search for an existing one or <a href="/profile">go to home</a></h1>
+    {% endif %}
+    {%if noalbum%}
+    <h1> User has no album with such name! <a href="/profile">go to home</a></h1>
+    {% endif %}
         <div class="title">
-            <h1>Search photos by your tags!</h1>
+            <h1>Search photos by album!</h1>
         </div>
 
         <li>Go <a href='/'>Home?</a></li>
         <li>Go to <a href='/profile'>profile?</a></li>
         <br>
-        
-        <form method="post" action="/search_your_tags">
-            <label for="tag">Search tag:</label>
-            <input type="text" name="tag" required='true' /><br />
+
+        <form method="post" action="/search_album">
+            <label for="album">Search album name:</label>
+            <input type="text" name="album" required='true' /><br />
+            <label for="uname">belongs to user email:</label>
+            <input type="text" name="uname" required='true' /><br />
             <input type="submit" value="Search" />
         </form>
-        <hr>
+
         {% if photos %}
         <h2>Here are your photos</h2>
             <ul>
@@ -31,8 +40,8 @@
                 <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'width = 700 height= 300/></li>
             {% endfor %}
             </ul>
-        {% else %}
-            <p style="color:red">No photos with such tag</p>        
+            {% else %}
+            <p color = "red">No photos with such tag</p>        
         {% endif %}
     </body>
 </html>

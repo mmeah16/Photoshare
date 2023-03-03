@@ -12,9 +12,10 @@
 
     	{% for tag in tags %}
 
-    		<li>{{tag[0]}}</li>
-    		<form method="post"  action="/top_three_tags">
-        	<input type="hidden" value={{tag[0]}} name="tag" /> 
+    		<li>{{tag[0]}}
+    		<form method="post"  action="/search_tags">
+        	<button type="submit" value={{tag[0]}} name="tag" >View tag Photos</button> 
+            </li>
         	</form>
         {% endfor %}
 

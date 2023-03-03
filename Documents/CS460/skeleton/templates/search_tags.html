@@ -23,12 +23,16 @@
         <h2>Here are your photos</h2>
             <ul>
             {% for photo in photos %}
-                    <input type="hidden" name="action" value="no" />
-                    <button name="pho" type="submit" value={{photo[1]}}>Press</button>
-                </form>
-                <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+            <li>{{photo[2]}}<br>
+            <form method="post" enctype="multipart/form-data" action="/inspect">
+                <input type="hidden" name="action" value="no" />
+                <button name="pho" type="submit" value={{photo[1]}}>Press</button>
+              </form>
+                <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'width = 700 height= 300/></li>
             {% endfor %}
             </ul>
+            {% else %}
+            <p color = "red">No photos with such tag</p>        
         {% endif %}
     </body>
 </html>

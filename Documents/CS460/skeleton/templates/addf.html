@@ -24,4 +24,21 @@
                 <input type="submit" />
             </form>
     </body>
+    <hr>
+
+    {% if friends %}
+        <h2>Listing your friends below: </h2>
+            <ul>
+            {% for friend in friends %}
+            <li>
+            <form method="post" enctype="multipart/form-data" action="/viewfriendalbum">
+                <button type="submit" name="friend" value="{{friend}}"></button>
+            </form>
+                {{friend}}<br></li>
+            {% endfor %}
+            </ul>
+    {%else %}
+    <h2>you have no friends! </h2>
+    
+    {% endif %}
 <a href='/'>Home</a>

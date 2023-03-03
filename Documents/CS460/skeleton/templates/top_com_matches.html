@@ -1,0 +1,27 @@
+<head>
+	<title>Top 3 Tags</title>
+</head>
+
+<li><a href='/'>Home</a></li>
+    <body>
+        <div class="title">
+            <h1>The Most Comment Matches on !</h1>
+        </div>
+
+        <form method="post" action="/top_comment_matches">
+            <label for="comment">Search comment:</label>
+            <input type="text" name="comment" required='true' /><br />
+            <input type="submit" value="Search" />
+        </form>
+
+    {% if users %}
+
+    	{% for user in users %}
+
+    		<li>{{user}} </li>
+        	</form>
+        {% endfor %}
+    {% else %}
+    <p style="color:red">No matches</p>
+    {% endif %}
+

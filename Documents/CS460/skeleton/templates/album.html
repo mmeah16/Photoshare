@@ -25,8 +25,16 @@
                 <h2>Listing your albums below: </h2>
                     <ul>
                     {% for album in albums %}
+                    <li>
+                    <form method="post" enctype="multipart/form-data" action="/viewalbum">
+                        <button name="alb" type="submit" value={{album[1]}}>Press</button>
+                    </form>
+                    <form method="post" enctype="multipart/form-data" action="/delete_album">
+                        <button name="delete" type="submit" value={{album[1]}}>Delete</button>
+                    </form>
+                       {{album[0]}}<br>
+                    </li>
 
-                        <li>{{album}}<br>
                     {% endfor %}
                     </ul>
             {%else %}

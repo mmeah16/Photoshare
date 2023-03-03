@@ -1,0 +1,28 @@
+<!doctype html>
+<head>
+    <title>Add albums!</title>
+</head>
+<a href="/profile">Go back home</a></h1>
+
+
+    <body>
+
+            {% if albums %}
+                <h2>Listing your albums below: </h2>
+                    <ul>
+                    {% for album in albums %}
+                    <li>
+                    <form method="post" enctype="multipart/form-data" action="/viewalbum">
+                        <button name="alb" type="submit" value={{album[1]}}>Click to view</button>
+                    </form>
+                       {{album[0]}}<br>
+                    </li>
+
+                    {% endfor %}
+                    </ul>
+            {%else %}
+            <h2>Friend has no albums! </h2>
+            
+            {% endif %}
+    </body>
+<a href='/'>Home</a>
