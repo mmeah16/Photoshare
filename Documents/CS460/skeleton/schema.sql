@@ -38,10 +38,12 @@ CREATE TABLE Pictures
   picture_id int AUTO_INCREMENT,
   user_id int4,
   imgdata longblob ,
+  album_id int NOT NULL,
   caption VARCHAR(255),
   INDEX upid_idx (user_id),
   CONSTRAINT pictures_pk PRIMARY KEY (picture_id),
-  FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES Users (user_id) ON DELETE CASCADE,
+  FOREIGN KEY (album_id) REFERENCES Albums (album_id) ON DELETE CASCADE
 );
 
 CREATE TABLE Comments
@@ -71,9 +73,10 @@ CREATE TABLE Tags(
 );
 
 CREATE TABLE Tagged(
-	word VARCHAR(20),
+	  word VARCHAR(20),
     picture_id int, 
     PRIMARY KEY (word, picture_id),
-    FOREIGN KEY (picture_id) REFERENCES Pictures(picture_id),
+    FOREIGN KEY (picture_id) REFERENCES Pictures(picture_id) ON DELETE CASCADE,
     FOREIGN KEY (word) REFERENCES Tags(word)
 );
+
